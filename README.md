@@ -1,5 +1,3 @@
 # Two Python scripts to illustrate recursion
-
-* Tiling problem.
-
-* A fractal star, drawn with boxes.
+1. A tessellation problem.
+2. A fractal star, drawn with boxes.

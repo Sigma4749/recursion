@@ -2,20 +2,11 @@ import turtle
 from random import randint
 
 # Parameters
-m = 8  # Grid dimension (a power of 2)
+m = 8       # Grid dimension (a power of 2)
 scale = 10  # Scale for the drawing
-
-# Create grid
-grid = [ [0 for i in range(m)] for j in range(m) ] # Initialization
-grid[randint(0,m-1)][randint(0,m-1)] = 1   # "Erase" one square of the grid at random
-
-# Show grid on terminal
-for dummy_index in range(m):
-    print(grid[dummy_index])
-print("")
-
-# List of colors
-colors = [(1,1,1),(0,0,0),(0.910,0.695,0.818),(0.570,0.751,0.905),(0.705,0.540,0.754),(1,0.996,0.716)]
+colors = [(1,1,1),(0,0,0),(0.910,0.695,0.818),(0.570,0.751,0.905),(0.705,0.540,0.754),(1,0.996,0.716)] # List of colors
+turtle.speed(0) # Animation speed
+turtle.ht()     # Hide drawing tool
 
 # Auxiliary function for drawing
 def draw_square(x,y,length, color):
@@ -36,9 +27,17 @@ def draw_square(x,y,length, color):
     turtle.left(180)
     turtle.end_fill()    
 
+# Creates the chessboard to tile
+def create_chessboard(m):
+    grid = [ [0 for i in range(m)] for j in range(m) ] # Initialization
+    grid[randint(0,m-1)][randint(0,m-1)] = 1   # Marks one square of the grid at random
+    for dummy_index in range(m): # Shows grid on terminal
+        print(grid[dummy_index])
+    print("")
+    return grid
 
 # Main recursive function
-def grid_tessellation(grid, x, y, index_color):
+def grid_tessellation(grid, x, y):
     n = int(len(grid)/2)
 
     # Termination condition
@@ -47,19 +46,19 @@ def grid_tessellation(grid, x, y, index_color):
             for j in range(len(grid)):
                 if grid[i][j] == 0:
                     grid[i][j] = ((x+y) % 3)+2
-
         draw_square(scale*(x-1), scale*(y+1), 2*scale, colors[grid[0][0]])
         draw_square(scale*(x+1), scale*(y+1), 2*scale, colors[grid[0][1]])
         draw_square(scale*(x-1), scale*(y-1), 2*scale, colors[grid[1][0]])
         draw_square(scale*(x+1), scale*(y-1), 2*scale, colors[grid[1][1]])
         return
 
+    # Recursive part
     square1 = [ grid[i][0:n] for i in range(n)  ]    
     square2 = [ grid[i][n:len(grid)] for i in range(n)  ]
     square3 = [ grid[i][0:n] for i in range(n,len(grid))  ]
     square4 = [ grid[i][n:len(grid)] for i in range(n,len(grid))  ]
 
-    # Search for the quadrant which contains the "erased" square
+    # Searchs for the quadrant which contains the marked square
     erased_square_quadrant = -1
     for i in range(len(grid)):
         for j in range(len(grid)):
@@ -82,39 +81,33 @@ def grid_tessellation(grid, x, y, index_color):
                         erased_square_quadrant = 4
                         break
 
-    # Color the tree incindent squares on the other quadrants
+    # Colors the three incindent squares on the other quadrants
     if (erased_square_quadrant == 1):
         square2[n-1][0] = 5
         square3[0][n-1] = 5
         square4[0][0] = 5
-        index_color = index_color + 1
     elif(erased_square_quadrant == 2):
         square1[n-1][n-1] = 5
         square3[0][n-1] = 5
         square4[0][0] = 5
-        index_color = index_color + 1
     elif(erased_square_quadrant == 3):
         square1[n-1][n-1] = 5
         square2[n-1][0] = 5
         square4[0][0] = 5
-        index_color = index_color + 1
     else:
         square1[n-1][n-1] = 5
         square2[n-1][0] = 5
         square3[0][n-1] = 5
-        index_color = index_color + 1
 
     # Recursive calls
-    grid_tessellation(square1, x-n, y+n, index_color)
-    grid_tessellation(square2, x+n, y+n, index_color)
-    grid_tessellation(square3, x-n, y-n, index_color)
-    grid_tessellation(square4, x+n, y-n, index_color)
+    grid_tessellation(square1, x-n, y+n)
+    grid_tessellation(square2, x+n, y+n)
+    grid_tessellation(square3, x-n, y-n)
+    grid_tessellation(square4, x+n, y-n)
 
 
-turtle.speed(0) # Animation speed
-turtle.ht()     # Hide drawing tool
-
-# Call recursive function
-grid_tessellation(grid, int(len(grid)/2),int(len(grid)/2), 2)
-
-turtle.mainloop()
+# Main function: creates a random chessboard and tiles it with L-shapes
+if __name__ == "__main__":
+    grid = create_chessboard(m)
+    grid_tessellation(grid, int(len(grid)/2),int(len(grid)/2))
+    turtle.mainloop()
